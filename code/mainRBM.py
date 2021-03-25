@@ -15,8 +15,11 @@ K = 5
 # SET PARAMETERS HERE!!!
 # number of hidden units
 #F
+F = 20
 #epochs
+epochs = 3
 #gradientLearningRate
+gradientLearningRate = 0.001
 
 # Initialise all our arrays
 W = rbm.getInitialWeights(trStats["n_movies"], F, K)
@@ -76,6 +79,8 @@ for epoch in range(1, epochs):
     print("### EPOCH %d ###" % epoch)
     print("Training loss = %f" % trRMSE)
     print("Validation loss = %f" % vlRMSE)
+    
+print('Training ended')
 
 ### END ###
 # This part you can write on your own
