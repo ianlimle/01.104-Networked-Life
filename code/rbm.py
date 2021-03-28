@@ -9,10 +9,12 @@ def softmax(x):
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum()
 
+
 def ratingsPerMovie(training):
     movies = [x[0] for x in training]
     u_movies = np.unique(movies).tolist()
     return np.array([[i, movie, len([x for x in training if x[0] == movie])] for i, movie in enumerate(u_movies)])
+
 
 def getV(ratingsForUser):
     # ratingsForUser is obtained from the ratings for user library
@@ -25,18 +27,21 @@ def getV(ratingsForUser):
         ret[i, ratingsForUser[i, 1]-1] = 1.0
     return ret
 
+
 def getInitialWeights(m, F, K):
     # m is the number of visible units
     # F is the number of hidden units
     # K is the highest rating (fixed to 5 here)
     return np.random.normal(0, 0.1, (m, F, K))
 
+
 def sig(x):
     ### TO IMPLEMENT ###
     # x is a real vector of size n
     # ret should be a vector of size n where ret_i = sigmoid(x_i)
-    ret = 1 / (1+np.exp(-x))
+    ret = 1 / (1 + np.exp(-x))
     return ret
+
 
 def visibleToHiddenVec(v, w):
     ### TO IMPLEMENT ###
@@ -44,14 +49,15 @@ def visibleToHiddenVec(v, w):
     #    OR a probability distribution over the rating
     # w is a list of matrices of size m x F x 5
     # ret should be a vector of size F
-    m_size = v.shape[0]
-    f_size = w.shape[1]
-    ret = np.zeros(f_size)
-    for i in range(m_size):
+    m_ = v.shape[0]
+    f_ = w.shape[1]
+    ret = np.zeros(f_)
+    for i in range(m_):
         for k in range(K):
             ret += v[i,k] * w[i,:,k]
     ret = sig(ret)
     return ret
+
 
 def hiddenToVisible(h, w):
     ### TO IMPLEMENT ###
@@ -63,15 +69,13 @@ def hiddenToVisible(h, w):
     #   has not rated! (where reconstructing means getting a distribution
     #   over possible ratings).
     #   We only do so when we predict the rating a user would have given to a movie.
-    
-    # print(h.shape)
-    m_size = w.shape[0]
-    summation = np.tensordot(h, w, axes=([0],[1]))
-    # print(summation.shape)
-    ret = np.zeros([m_size, 5])
-    for i in range(m_size):
-        ret[i, :] = softmax(summation[i, :])
+    m_ = w.shape[0]
+    sum_ = np.tensordot(h, w, axes=([0],[1]))
+    ret = np.zeros([m_, 5])
+    for i in range(m_):
+        ret[i, :] = softmax(sum_[i, :])
     return ret
+
 
 def probProduct(v, p):
     # v is a matrix of size m x 5
@@ -84,6 +88,7 @@ def probProduct(v, p):
                 ret[i, j, k] = v[i, k] * p[j]
     return ret
 
+
 def sample(p):
     # p is a vector of real numbers between 0 and 1
     # ret is a vector of same size as p, where ret_i = Ber(p_i)
@@ -91,6 +96,7 @@ def sample(p):
     # parameter p_i to obtain ret_i
     samples = np.random.random(p.size)
     return np.array(samples <= p, dtype=int)
+
 
 def getPredictedDistribution(v, w, wq):
     ### TO IMPLEMENT ###
@@ -107,14 +113,13 @@ def getPredictedDistribution(v, w, wq):
     #   - Backpropagate these hidden states to obtain
     #       the distribution over the movie whose associated weights are wq
     # ret is a vector of size 5
-    
-    posHiddenProb = visibleToHiddenVec(v, w)
-    
-    sampledHidden = sample(posHiddenProb)
+    hiddenInputs = visibleToHiddenVec(v, w)
+    sampledHidden = sample(hiddenInputs)
     wq = np.array([wq])
-    
-    negData = hiddenToVisible(sampledHidden, wq)
-    return negData[0,:]
+    ret = hiddenToVisible(sampledHidden, wq)
+    ret = ret[0,:]
+    return ret
+
 
 def predictRatingMax(ratingDistribution):
     ### TO IMPLEMENT ###
@@ -123,10 +128,8 @@ def predictRatingMax(ratingDistribution):
     # This function is one of three you are to implement
     # that returns a rating from the distribution
     # We decide here that the predicted rating will be the one with the highest probability
-    
     highest_val = max(ratingDistribution)
     corr_index = ratingDistribution.index(highest_val)
-    
     return corr_index + 1
 
 
@@ -138,18 +141,15 @@ def predictRatingExp(ratingDistribution):
     # that returns a rating from the distribution
     # We decide here that the predicted rating will be the expectation over
     # the softmax applied to ratingDistribution
-    
     ret = 0
     for i in range(K):
         ret += (i+1) * ratingDistribution[i]
-        
-    return ret
+    return ret    
+
 
 def predictMovieForUser(q, user, W, training, predictType="exp"):
-    # q is movie idx
+    # movie is movie idx
     # user is user ID
-    # W is the trained weights
-    # training is the training data
     # type can be "max" or "exp"
     ratingsForUser = lib.getRatingsForUser(user, training)
     v = getV(ratingsForUser)
@@ -159,10 +159,12 @@ def predictMovieForUser(q, user, W, training, predictType="exp"):
     else:
         return predictRatingExp(ratingDistribution)
 
+
 def predict(movies, users, W, training, predictType="exp"):
     # given a list of movies and users, predict the rating for each (movie, user) pair
     # used to compute RMSE
     return [predictMovieForUser(movie, user, W, training, predictType=predictType) for (movie, user) in zip(movies, users)]
+
 
 def predictForUser(user, W, training, predictType="exp"):
     ### TO IMPLEMENT
@@ -171,6 +173,5 @@ def predictForUser(user, W, training, predictType="exp"):
     movies_pred = []
     for movie in all_movies:
         pred = predictMovieForUser(movie, user, W, training, predictType=predictType)
-        movies_pred.append(pred)
-    
+        movies_pred.append(pred)    
     return movies_pred
