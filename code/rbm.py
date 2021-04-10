@@ -39,8 +39,14 @@ def sig(x):
     ### TO IMPLEMENT ###
     # x is a real vector of size n
     # ret should be a vector of size n where ret_i = sigmoid(x_i)
+    ###########################################################################
+    #                             START OF YOUR CODE                          #
+    ###########################################################################
     ret = 1 / (1 + np.exp(-x))
     return ret
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
 
 
 def visibleToHiddenVec(v, w):
@@ -49,6 +55,9 @@ def visibleToHiddenVec(v, w):
     #    OR a probability distribution over the rating
     # w is a list of matrices of size m x F x 5
     # ret should be a vector of size F
+    ###########################################################################
+    #                             START OF YOUR CODE                          #
+    ###########################################################################
     m_ = v.shape[0]
     f_ = w.shape[1]
     ret = np.zeros(f_)
@@ -57,6 +66,9 @@ def visibleToHiddenVec(v, w):
             ret += v[i,k] * w[i,:,k]
     ret = sig(ret)
     return ret
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
 
 
 def hiddenToVisible(h, w):
@@ -69,12 +81,18 @@ def hiddenToVisible(h, w):
     #   has not rated! (where reconstructing means getting a distribution
     #   over possible ratings).
     #   We only do so when we predict the rating a user would have given to a movie.
+    ###########################################################################
+    #                             START OF YOUR CODE                          #
+    ###########################################################################
     m_ = w.shape[0]
     sum_ = np.tensordot(h, w, axes=([0],[1]))
     ret = np.zeros([m_, 5])
     for i in range(m_):
         ret[i, :] = softmax(sum_[i, :])
     return ret
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
 
 
 def probProduct(v, p):
@@ -113,13 +131,18 @@ def getPredictedDistribution(v, w, wq):
     #   - Backpropagate these hidden states to obtain
     #       the distribution over the movie whose associated weights are wq
     # ret is a vector of size 5
+    ###########################################################################
+    #                             START OF YOUR CODE                          #
+    ###########################################################################
     hiddenInputs = visibleToHiddenVec(v, w)
     sampledHidden = sample(hiddenInputs)
     wq = np.array([wq])
     ret = hiddenToVisible(sampledHidden, wq)
     ret = ret[0,:]
     return ret
-
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
 
 def predictRatingMax(ratingDistribution):
     ### TO IMPLEMENT ###
@@ -128,9 +151,15 @@ def predictRatingMax(ratingDistribution):
     # This function is one of three you are to implement
     # that returns a rating from the distribution
     # We decide here that the predicted rating will be the one with the highest probability
+    ###########################################################################
+    #                             START OF YOUR CODE                          #
+    ###########################################################################
     highest_val = max(ratingDistribution)
     corr_index = ratingDistribution.index(highest_val)
     return corr_index + 1
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
 
 
 def predictRatingExp(ratingDistribution):
@@ -141,11 +170,16 @@ def predictRatingExp(ratingDistribution):
     # that returns a rating from the distribution
     # We decide here that the predicted rating will be the expectation over
     # the softmax applied to ratingDistribution
+    ###########################################################################
+    #                             START OF YOUR CODE                          #
+    ###########################################################################
     ret = 0
     for i in range(K):
         ret += (i+1) * ratingDistribution[i]
     return ret    
-
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
 
 def predictMovieForUser(q, user, W, training, predictType="exp"):
     # movie is movie idx
@@ -169,9 +203,15 @@ def predict(movies, users, W, training, predictType="exp"):
 def predictForUser(user, W, training, predictType="exp"):
     ### TO IMPLEMENT
     # given a user ID, predicts all movie ratings for the user
+    ###########################################################################
+    #                             START OF YOUR CODE                          #
+    ###########################################################################
     all_movies = lib.getUsefulStats(training)["u_movies"]
     movies_pred = []
     for movie in all_movies:
         pred = predictMovieForUser(movie, user, W, training, predictType=predictType)
         movies_pred.append(pred)    
     return movies_pred
+    ###########################################################################
+    #                             END OF YOUR CODE                            #
+    ###########################################################################
